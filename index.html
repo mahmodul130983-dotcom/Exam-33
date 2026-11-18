@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DU B Unit 33th Exam </title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+  <style>
+    :root {
+      --bg-base: #030712;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary: #38bdf8;
+      --primary-glow: rgba(56, 189, 248, 0.35);
+      --accent: #c084fc;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      
+      --correct-bg: rgba(16, 185, 129, 0.15);
+      --correct-border: #10b981;
+      --correct-text: #34d399;
+
+      --wrong-bg: rgba(239, 68, 68, 0.15);
+      --wrong-border: #ef4444;
+      --wrong-text: #f87171;
+
+      --skipped-bg: rgba(245, 158, 11, 0.15);
+      --skipped-border: #f59e0b;
+      --skipped-text: #fbbf24;
+
+      --shadow-premium: 0 25px 60px -15px rgba(0, 0, 0, 0.8);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Hind Siliguri', 'Plus Jakarta Sans', sans-serif; }
+    
+    body {
+      background-color: var(--bg-base);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(192, 132, 252, 0.12) 0px, transparent 50%),
+        radial-gradient(at 50% 100%, rgba(14, 165, 233, 0.08) 0px, transparent 50%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px 16px;
+      overflow-x: hidden;
+    }
+
+    /* Animated Dynamic Mesh background elements */
+    .mesh-bg {
+      position: fixed;
+      width: 100vw;
+      height: 100vh;
+      top: 0; left: 0;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.35;
+      animation: moveBlob 15s infinite alternate ease-in-out;
+    }
+    .blob-1 { width: 400px; height: 400px; background: #0284c7; top: -10%; left: -10%; }
+    .blob-2 { width: 450px; height: 450px; background: #7e22ce; bottom: -10%; right: -10%; animation-delay: -7s; }
+
+    @keyframes moveBlob {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(60px, 40px) scale(1.2); }
+    }
+
+    .quiz-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      border: 1px solid var(--card-border);
+      width: 100%;
+      max-width: 860px;
+      border-radius: 32px;
+      box-shadow: var(--shadow-premium);
+      padding: 44px 38px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .quiz-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 4px;
+      background: linear-gradient(90deg, #38bdf8, #c084fc, #38bdf8);
+      background-size: 200% auto;
+      animation: shimmer 4s linear infinite;
+    }
+
+    @keyframes shimmer {
+      to { background-position: 200% center; }
+    }
+
+    /* Name Input Screen */
+    .user-info-screen { text-align: center; display: block; animation: fadeIn 0.5s ease-out; }
+    .badge-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #7dd3fc; padding: 8px 20px; border-radius: 100px; font-size: 13px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 24px;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
+    }
+    .welcome-title {
+      font-size: 38px; font-weight: 800; line-height: 1.2;
+      background: linear-gradient(135deg, #ffffff 20%, #94a3b8 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+    }
+    .welcome-subtitle { color: var(--text-muted); font-size: 16px; margin-bottom: 32px; font-weight: 500; }
+    
+    .input-wrapper { position: relative; max-width: 520px; margin: 0 auto 28px auto; }
+    .input-wrapper i { position: absolute; left: 22px; top: 50%; transform: translateY(-50%); color: #38bdf8; font-size: 18px; pointer-events: none; }
+    .user-input {
+      width: 100%; padding: 18px 20px 18px 58px; font-size: 17px; color: var(--text-main);
+      background: rgba(3, 7, 18, 0.6); border: 2px solid var(--card-border); border-radius: 18px;
+      outline: none; font-weight: 600; transition: all 0.3s ease;
+    }
+    .user-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 25px var(--primary-glow);
+      background: rgba(3, 7, 18, 0.85);
+    }
+
+    .btn-glow {
+      width: 100%; max-width: 520px; margin: 0 auto;
+      background: linear-gradient(135deg, #0284c7 0%, #7e22ce 100%);
+      color: white; border: none; padding: 18px; font-size: 18px; font-weight: 700;
+      border-radius: 18px; cursor: pointer; box-shadow: 0 10px 30px rgba(14, 165, 233, 0.3);
+      display: flex; justify-content: center; align-items: center; gap: 12px; transition: all 0.3s ease;
+    }
+    .btn-glow:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(126, 34, 206, 0.4); }
+
+    /* Exam Screen Top Bar */
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 14px; }
+    .student-badge {
+      display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; color: #e2e8f0;
+      background: rgba(255, 255, 255, 0.04); padding: 8px 18px; border-radius: 30px; border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .progress-pill {
+      font-size: 14px; font-weight: 700; color: #7dd3fc; background: rgba(56, 189, 248, 0.12);
+      padding: 8px 18px; border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+    .progress-bar-container { width: 100%; height: 8px; background: rgba(255, 255, 255, 0.06); border-radius: 10px; margin-bottom: 28px; overflow: hidden; }
+    .progress-bar { height: 100%; background: linear-gradient(90deg, #38bdf8, #c084fc); width: 0%; transition: width 0.4s ease; border-radius: 10px; }
+
+    /* Questions & Options */
+    .question-box { font-size: 22px; font-weight: 700; line-height: 1.5; margin-bottom: 26px; color: #ffffff; min-height: 64px; }
+    .options-grid { display: flex; flex-direction: column; gap: 14px; }
+    .option-btn {
+      width: 100%; padding: 18px 22px; font-size: 16px; font-weight: 500; text-align: left;
+      background: rgba(255, 255, 255, 0.03); color: var(--text-main); border: 1.5px solid var(--card-border);
+      border-radius: 16px; cursor: pointer; transition: all 0.25s ease; display: flex; align-items: center; justify-content: space-between;
+    }
+    .option-btn:hover:not(:disabled) { border-color: #38bdf8; background: rgba(56, 189, 248, 0.08); transform: translateX(4px); }
+    
+    .option-btn.correct-opt { background: var(--correct-bg) !important; border-color: var(--correct-border) !important; color: var(--correct-text) !important; font-weight: 700; }
+    .option-btn.wrong-opt { background: var(--wrong-bg) !important; border-color: var(--wrong-border) !important; color: var(--wrong-text) !important; font-weight: 700; }
+    .option-btn.disabled-opt { opacity: 0.85; cursor: not-allowed; }
+
+    /* Nav Buttons */
+    .nav-actions { margin-top: 32px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.05); border: 1px solid var(--card-border); color: #fff;
+      padding: 14px 22px; font-size: 15px; font-weight: 600; border-radius: 14px; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 10px; transition: all 0.25s;
+    }
+    .nav-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.1); transform: translateY(-2px); }
+    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .skip-btn { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); color: var(--skipped-text); }
+    .skip-btn:hover { background: rgba(245, 158, 11, 0.2) !important; }
+
+    .submit-exam-btn {
+      background: linear-gradient(135deg, #10b981, #059669); color: white; border: none;
+      padding: 14px 26px; font-size: 15px; font-weight: 700; border-radius: 14px; cursor: pointer;
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3); transition: all 0.25s; display: none;
+    }
+    .submit-exam-btn:hover { transform: scale(1.04); }
+
+    /* Results Screen */
+    .result-screen { text-align: center; display: none; animation: fadeIn 0.5s ease-out; }
+    .score-circle {
+      width: 180px; height: 180px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(56,189,248,0.2) 0%, rgba(126,34,206,0.1) 100%);
+      border: 3px solid rgba(255, 255, 255, 0.12); color: #ffffff;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      margin: 24px auto; box-shadow: 0 0 40px rgba(56, 189, 248, 0.25);
+    }
+    .score-circle .number {
+      font-size: 46px; font-weight: 800; line-height: 1;
+      background: linear-gradient(135deg, #38bdf8, #c084fc);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .score-details-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 28px 0; }
+    .stat-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); padding: 16px 10px; border-radius: 16px; }
+    .stat-card .val { font-size: 22px; font-weight: 800; }
+
+    .review-section { margin-top: 28px; text-align: left; max-height: 340px; overflow-y: auto; padding-right: 8px; }
+    .review-section::-webkit-scrollbar { width: 6px; }
+    .review-section::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+    .review-item { background: rgba(3, 7, 18, 0.6); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; margin-bottom: 12px; font-size: 14px; }
+    .review-item.is-correct { border-left: 4px solid var(--correct-border); }
+    .review-item.is-wrong { border-left: 4px solid var(--wrong-border); }
+    .review-item.is-skipped { border-left: 4px solid var(--skipped-border); }
+    .review-q { font-weight: 700; color: #fff; margin-bottom: 8px; }
+    .review-ans { color: var(--text-muted); display: flex; flex-direction: column; gap: 4px; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(12px);
+      display: flex; justify-content: center; align-items: center; z-index: 1000;
+      opacity: 0; pointer-events: none; transition: all 0.3s ease;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-content {
+      background: rgba(17, 24, 39, 0.95); border: 1px solid var(--card-border);
+      padding: 34px; border-radius: 28px; max-width: 460px; width: 90%; text-align: center;
+      box-shadow: var(--shadow-premium);
+    }
+    .modal-actions { display: flex; gap: 14px; margin-top: 24px; justify-content: center; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 600px) { .score-details-grid { grid-template-columns: repeat(2, 1fr); } .quiz-card { padding: 26px 18px; } .welcome-title { font-size: 28px; } }
+  </style>
+</head>
+<body>
+
+  <!-- Dynamic Ambient Background Blobs -->
+  <div class="mesh-bg">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+  </div>
+
+  <div class="quiz-card">
+    
+    <!-- 1. Name Input View -->
+    <div id="user-info-view" class="user-info-screen">
+      <div class="badge-tag">
+        <i class="fa-solid fa-graduation-cap"></i> DU B UNIT MODEL TEST
+      </div>
+      <h1 class="welcome-title">33 Number Exam</h1>
+      <p class="welcome-subtitle">GK, Bangla & English </p>
+      
+      <div class="input-wrapper">
+        <i class="fa-solid fa-user-astronaut"></i>
+        <input type="text" id="user-name" class="user-input" placeholder="Enter your full name..." autocomplete="off">
+      </div>
+      
+      <button class="btn-glow" id="start-btn" onclick="startQuiz()">
+       Launch Exam <i class="fa-solid fa-rocket"></i>
+      </button>
+    </div>
+
+    <!-- 2. Exam Screen -->
+    <div id="quiz-view" style="display: none;">
+      <div class="top-bar">
+        <div class="student-badge">
+          <i class="fa-solid fa-user-circle" style="color: #38bdf8;"></i>
+          <span id="display-name">Student</span>
+        </div>
+        <span class="progress-pill" id="progress-text">Question 1/100</span>
+      </div>
+
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+
+      <div class="question-box" id="question-title">Question loading...</div>
+      <div class="options-grid" id="options-grid"></div>
+
+      <div class="nav-actions">
+        <button class="nav-btn" id="prev-btn" onclick="navigateQuestion(-1)"><i class="fa-solid fa-chevron-left"></i> Previous</button>
+        <button class="nav-btn skip-btn" id="skip-btn" onclick="skipCurrentQuestion()"><i class="fa-solid fa-forward"></i> Skip</button>
+        <button class="nav-btn" id="next-btn" onclick="navigateQuestion(1)">Next <i class="fa-solid fa-chevron-right"></i></button>
+        <button class="submit-exam-btn" id="submit-btn" onclick="openSubmitModal()"><i class="fa-solid fa-paper-plane"></i> Submit</button>
+      </div>
+    </div>
+
+    <!-- 3. Results Screen -->
+    <div class="result-screen" id="result-view">
+      <div class="badge-tag" id="performance-badge"><i class="fa-solid fa-trophy"></i> Results Analyzed</div>
+      <h2 style="font-size: 28px; font-weight: 800; margin-top: 6px;">Performance Overview</h2>
+      <p style="color: var(--text-muted); font-size: 14px;">Results securely saved to 'quiz_results 32'</p>
+      
+      <div class="score-circle">
+        <div class="number" id="final-score">০.০০</div>
+        <span style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Total Score / 100</span>
+      </div>
+
+      <div class="score-details-grid">
+        <div class="stat-card">
+          <div class="val" style="color: var(--correct-text);" id="correct-count">০</div>
+          <div style="font-size: 12px; color: var(--text-muted);">Right (+1.00)</div>
+        </div>
+        <div class="stat-card">
+          <div class="val" style="color: var(--wrong-text);" id="wrong-count">০</div>
+          <div style="font-size: 12px; color: var(--text-muted);">Wrong (-0.25)</div>
+        </div>
+        <div class="stat-card">
+          <div class="val" style="color: var(--skipped-text);" id="skipped-count">০</div>
+          <div style="font-size: 12px; color: var(--text-muted);">Skip (0)</div>
+        </div>
+        <div class="stat-card">
+          <div class="val" style="color: #7dd3fc;" id="accuracy-rate">০%</div>
+          <div style="font-size: 12px; color: var(--text-muted);">Accuracy</div>
+        </div>
+      </div>
+
+      <h3 style="text-align: left; font-size: 17px; margin-top: 24px; color: #e2e8f0; font-weight: 700;">Answer Review & Solves:</h3>
+      <div class="review-section" id="review-list"></div>
+    </div>
+
+  </div>
+
+  <!-- Modal Confirmation -->
+  <div class="modal-overlay" id="submit-modal">
+    <div class="modal-content">
+      <i class="fa-solid fa-triangle-exclamation" style="font-size: 48px; color: #f59e0b; margin-bottom: 14px;"></i>
+      <h3 style="font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 8px;">Finalize Submission?</h3>
+      <p id="modal-summary-text" style="color: var(--text-muted); font-size: 15px;"></p>
+      <div class="modal-actions">
+        <button class="nav-btn" onclick="closeSubmitModal()">Review Again</button>
+        <button class="submit-exam-btn" style="display:inline-block;" onclick="finalizeExam()">Confirm Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCTgSqtcDRtvfbIECDFEv_2jAEgModArXc",
+      authDomain: "gk-exam-2.firebaseapp.com",
+      projectId: "gk-exam-2",
+      storageBucket: "gk-exam-2.firebasestorage.app",
+      messagingSenderId: "52008698353",
+      appId: "1:52008698353:web:08a24e1451711ab72f0450",
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const questionsDatabase = [
+
+{question: "‘জীবন ও বৃক্ষ’ প্রবন্ধ অনুসারে দোরের কাছে দাঁড়িয়ে বৃক্ষ কীসের বাণী প্রচার করে?", options: ["নতি, শান্তি ও সেবার", "সাম্য, মৈত্রী ও স্বাধীনতার", "একতা, শৃঙ্খলা ও সাধনার", "সাধনা, ত্যাগ ও পরিপূর্ণতার"], correct: 0},
+{question: "‘যে মোরে দিয়েছে বিষে-ভরা বাণ, আমি দেই তারে বুকভরা গান’—এ পঙ্ক্তিতে ‘বিষে-ভরা বাণ’ দ্বারা কী বোঝানো হয়েছে?", options: ["বিষাক্ত তীর", "ধারালো তীর", "কটুকথা", "তীরের আঘাত"], correct: 2},
+{question: "ঘোষ মহাপ্রাণ ধ্বনির উদাহরণ কোনটি?", options: ["চ", "ছ", "জ", "ঢ"], correct: 3},
+{question: "‘হাত জোড় করিয়াছি, মাথা হেঁট করিয়াছি’—‘অপরিচিতা’ গল্প অনুসারে অনুপমের হাত জোড় করা এবং মাথা হেঁট করা কী নির্দেশ করে?", options: ["অনুপমের ভালোবাসার গভীরতা", "পুরুষতান্ত্রিক দম্ভের পরাজয়", "অনুপমের কাপুরুষতা", "অনুপমের ক্ষমা প্রার্থনা"], correct: 1},
+{question: "‘অপরিচিতা’ গল্পে ‘ফলের মতো গুটি’ বলতে কী বোঝানো হয়েছে?", options: ["সুন্দর জীবন", "নিষ্ফল জীবন", "সার্থক জীবন", "সতেজ জীবন"], correct: 1},
+{question: "‘অভ্যুত্থান’ শব্দটিতে কয়টি অক্ষর আছে?", options: ["তিনটি", "দুইটি", "চারটি", "একটি"], correct: 0},
+{question: "আভিধানিক ক্রম অনুযায়ী বিন্যস্ত শব্দগুচ্ছ কোনটি?", options: ["নিম্নোক্ত, নিদর্শন, নিরাসক্ত", "নিষ্ক্রিয়, নিসর্গ, নিম্নোক্ত", "নিদর্শন, নিম্নোক্ত, নিরাময়", "নিদর্শন, নিরাসক্ত, নিষ্ক্রিয়"], correct: 2},
+{question: "‘শূন্য নদীর তীরে/ রহিনু পড়ি।’—কথাটি দ্বারা কী বোঝানো হয়েছে?", options: ["মৃত্যুর অনিবার্যতা", "কালের প্রবহমানতা", "কৃষকের অসহায়ত্ব", "অপ্রাপ্তির বেদনা"], correct: 0},
+{question: "কবি নিজেকে ‘চির-বিদ্রোহী’ বলেছেন কেন?", options: ["তিনি আর্তের পক্ষে দ্রোহ করেন বলে", "তাঁর বিদ্রোহ নিরন্তর বলে", "তাঁর বিদ্রোহ অন্যায়ের বিরুদ্ধে বলে", "তাঁর বিদ্রোহে চিড় ধরে না বলে"], correct: 1},
+{question: "নিপাতনে সিদ্ধ ‘ষ’-এর ব্যবহার হয়েছে কোনটিতে?", options: ["মুমূর্ষু", "অনুষঙ্গ", "বর্ষণ", "ভূষণ"], correct: 3},
+{question: "কবি ‘বিশ্বামিত্রের শিষ্য’ দ্বারা বোঝাতে চেয়েছেন—", options: ["প্রগাঢ় প্রেম", "দ্রোহের প্রচণ্ডতা", "কঠোরতা", "একনিষ্ঠ সাধনা"], correct: 3},
+{question: "‘যে বস্তুটি এই অসাধ্য-সাধন করিয়া তুলিয়াছিল তাহার পরিচয় যদিও সেদিন পাই নাই, কিন্তু আর একদিন পাইয়াছিলাম’—এই বস্তুটি প্রকৃতপক্ষে কী?", options: ["শ্রদ্ধা", "শক্তি", "ভালোবাসা", "মূল্যবোধ"], correct: 2},
+{question: "চন্দ্রবিন্দু চিহ্নের ভুল প্রয়োগ হয়েছে কোন শব্দে?", options: ["আঁকাবাঁকা", "কাঁচ", "কাঁধ", "সাঁতার"], correct: 1},
+{question: "‘প্রশ্ন’ শব্দের সঠিক উচ্চারণ কোনটি?", options: ["প্রশ্নো", "প্রোনো", "প্রস্রা", "প্রোস্না"], correct: 3},
+{question: "‘বাঙ্গালার নব্য লেখকদিগের প্রতি নিবেদন’ প্রবন্ধে বঙ্কিমচন্দ্র যে উদ্দেশ্যে পরামর্শ প্রদান করেছেন—", options: ["বাংলার লেখকদের অর্থনৈতিক দৈন্য দূরীকরণে", "বাংলাভাষার পত্রিকাগুলোর প্রসারে", "বাংলা সাহিত্যের উন্নতিকল্পে", "সাধু-চলিত ভাষারীতির দ্বন্দ্ব নিরসনে"], correct: 2},
+{question: "‘গোটা দেশই ছারখার হয়ে গেছে’—এ বাক্যে ব্যবহৃত ‘গোটা’ পদাশ্রিত নির্দেশক কী অর্থে ব্যবহৃত হয়েছে?", options: ["নির্দিষ্ট", "অনির্দিষ্ট", "সুনির্দিষ্ট", "নিরর্থক"], correct: 0},
+{question: "‘মেঘলুপ্ত সূর্যের মতো প্রদীপ্ত যৌবন’—কার ক্ষেত্রে বলা হয়েছে?", options: ["তরুণের", "বৃদ্ধের", "শিশুর", "নারীর"], correct: 1},
+{question: "নিচের কোনটি ‘কন্যা’ শব্দের সমার্থক শব্দ নয়?", options: ["আত্মজা", "দুহিতা", "তনয়া", "ললনা"], correct: 3},
+{question: "অন্য ভাষায় রূপান্তরিত—এর এক কথায় প্রকাশ কোনটি?", options: ["অনূদিত", "অনুবাদ", "রূপান্তর", "ভিন্ন ভাষা"], correct: 0},
+{question: "‘Corrigendum’ শব্দের বাংলা পরিভাষা কোনটি?", options: ["পুনর্বিন্যাস", "শুদ্ধিপত্র", "স্থাপত্যকলা", "অনুরোধপত্র"], correct: 1},
+{question: "‘কহিল সে স্নিগ্ধ আঁখি তুলি-/দক্ষিণ দুয়ার গেছে খুলি?’—এখানে কবির কোন অভিব্যক্তি প্রকাশ পেয়েছে?", options: ["অলসতা", "নিস্পৃহতা", "অনাসক্ততা", "উদাসীনতা"], correct: 3},
+{question: "স্বামিত্বের প্রাধান্যের জন্য রাম সীতার ইচ্ছাশক্তিকে—", options: ["প্রাধান্য দেননি", "প্রাধান্য দিয়েছেন", "গুরুত্ব দিয়েছেন", "বিবেচনা করেছেন"], correct: 0},
+{question: "‘তৃষ্ণার্ত’ শব্দের সন্ধি বিচ্ছেদ কোনটি?", options: ["তৃষ্ণা + আর্ত", "তৃষ্ণা + ঋত", "তৃষ্ণ + ষ্ণর্ত", "তৃষ্ণা + রিত"], correct: 0},
+{question: "‘মাত্রাধিক্য’ শব্দের সঠিক সন্ধি বিচ্ছেদ কোনটি?", options: ["মাত্রা + আধিক্য", "মাত্র + আধিক্য", "মাতৃ + আধিক্য", "মাত্র + অধিক্য"], correct: 0},
+{question: "‘রচিয়া লহ না আজও গীতি’—এখানে ‘না’ কী অর্থে ব্যবহৃত?", options: ["তিরস্কার", "উপদেশ", "অনুরোধ", "নিষেধ"], correct: 2},
+{question: "‘নিরবধি’ শব্দের সন্ধি বিচ্ছেদ কোনটি?", options: ["নির + বধি", "নিরব + ধি", "নিঃ + অবধি", "নি + অবধি"], correct: 2},
+{question: "লেখিকার মতে, সীতা রামের নিকট থেকে কোন অধিকার পাননি?", options: ["স্ত্রীর অধিকার", "সম্পদের অধিকার", "নারীর অধিকার", "ভালোবাসার অধিকার"], correct: 0},
+{question: "‘তাহারেই পড়ে মনে’ কবিতায় কার আগমনী গানের কথা বলা হয়েছে?", options: ["দক্ষিণা সমীরের", "আমের মুকুলের", "হেমন্তের", "বসন্তের"], correct: 3},
+{question: "‘পরাভাব’ শব্দের ‘পরা’ উপসর্গটি কোন অর্থে ব্যবহৃত?", options: ["নিকৃষ্ট", "অধীন", "বিপরীত", "আতিশয্য"], correct: 2},
+{question: "‘প্রতিকৃতি’ শব্দটির উপসর্গ কোন অর্থে ব্যবহৃত?", options: ["সাদৃশ্য", "বিপরীত", "ভিন্ন", "সম্মুখ"], correct: 0},
+
+{question: "He ___ learning English ___ three years ago.", options: ["is, for", "has been, for", "has been, during", "has been, since"], correct: 3},
+{question: "By the end of this week, they ___ the main sites of Chattogram.", options: ["will visit", "had visited", "will be visiting", "will have visited"], correct: 3},
+{question: "Much as his elder brother ___ at BUET, he ___ at DU.", options: ["had studied, studied", "studied, studied", "had studied, has studied", "will study, studied"], correct: 1},
+{question: "It was the first time that I ___ salmon.", options: ["tried", "have tried", "had tried", "tasted"], correct: 2},
+{question: "She ___ born into a rich family.", options: ["is", "has been", "was", "all of them"], correct: 2},
+{question: "Which of these words is closest in meaning to the word 'drag'?", options: ["medicine", "crush", "proud", "pull"], correct: 3},
+{question: "The word 'diaspora' is related to—", options: ["Migration", "Entrance", "Concentration", "Appearance"], correct: 0},
+{question: "She is blind ___ one eye.", options: ["of", "with", "to", "in"], correct: 3},
+{question: "He says he'll help us, but I don't believe ___ him.", options: ["in", "on", "about", "no preposition"], correct: 3},
+{question: "Which sentence uses the idiom 'fight shy of' correctly?", options: ["He tends to fight shy of discussing personal matters in public.", "She fought shy of the competition by training harder every day.", "We fight shy of our teacher by asking too many questions.", "They fought shy of the problem and solved it immediately."], correct: 0},
+{question: "The passage mentions a theory of dream that suggests that when we sleep, we receive stimuli from—", options: ["our memory", "our desire", "sources inside our body", "sources that lie outside of the body"], correct: 3},
+{question: "In place of the word 'unravelling' we can use—", options: ["untangling", "entangling", "twisting", "ignoring"], correct: 0},
+{question: "The passage suggests that—", options: ["science is still clueless about the real purpose of sleep", "dreaming guarantees physical fitness", "brains stop functioning when we sleep", "dreams are meaningless"], correct: 0},
+{question: "By the 'cognitive elements of our brain' the passage suggests—", options: ["elements are connected to compassion and fellow-feeling", "the sensuous elements stimulate desire", "elements are connected to reasoning, learning and conceptualizing", "elements directly affect one's spirituality"], correct: 2},
+{question: "'Supposing you lost your passport, how would you return home?' What type of sentence is this?", options: ["simple", "complex", "compound", "complex-simple"], correct: 1},
+{question: "The hotel was ___ but cheap.", options: ["everything", "nothing", "anything", "not at all"], correct: 2},
+{question: "Choose the correct sentence.", options: ["Funny Girl who is my favourite comedy of all time is on TV tomorrow night.", "Funny Girl, who is my favourite comedy of all time, is on TV tomorrow night.", "Funny Girl, that is my favourite comedy of all time, is on TV tomorrow night.", "Funny Girl, which is my favourite comedy of all time, is on TV tomorrow night."], correct: 3},
+{question: "Let the matter be just between—", options: ["you and I", "you and myself", "ourselves", "none above"], correct: 2},
+{question: "Some people believe that the benefits of a healthy diet outweigh ___ of regular exercise.", options: ["than that", "than those", "that", "those"], correct: 3},
+{question: "Which of these words is closest in meaning to the word 'pensive'?", options: ["oppressed", "caged", "thoughtful", "happy"], correct: 2},
+{question: "Which of these words is closest in meaning to the word 'banish'?", options: ["exile", "hate", "fade", "clean"], correct: 0},
+{question: "'Resilient' is antonymous to—", options: ["stubborn", "careless", "substantial", "flimsy"], correct: 3},
+{question: "She was deeply ashamed ___ her behaviour at the party.", options: ["for", "about", "on", "of"], correct: 3},
+{question: "She has an uncanny ___ ability what consumers will want.", options: ["of predicting", "in predicting", "to predicting", "to predict"], correct: 3},
+{question: "He was quite apprehensive ___ the surgery.", options: ["of", "on", "with", "for"], correct: 0},
+{question: "'Bad blood' means—", options: ["friendship", "impure blood", "blue blood", "hostility"], correct: 3},
+{question: "They ___ an effort to resolve the conflict peacefully.", options: ["made", "took", "did", "performed"], correct: 0},
+{question: "The correct spelling is—", options: ["Conscientious", "Concientious", "Conscintous", "Conscientous"], correct: 0},
+{question: "My cousin ___ chicken pox this weekend.", options: ["came round with", "came along with", "came down with", "came over with"], correct: 2},
+{question: "'Hope is the thing with feathers.' Which figure of speech is used?", options: ["Simile", "Oxymoron", "Metaphor", "Irony"], correct: 2},
+
+
+{question: "লেডি উইথ দ্য ল্যাম্প হিসেবে পরিচিত কে?", options: ["সরোজিনী নাইডু", "হেলেন কেলার", "ফ্লোরেন্স নাইটিঙ্গেল", "মাদার তেরেসা"], correct: 2},
+{question: "ব্রাজিলের ভাষা কোনটি?", options: ["ইংরেজি", "ডাচ", "পর্তুগিজ", "স্প্যানিশ"], correct: 2},
+{question: "যুক্তরাষ্ট্র স্বাধীনতা ঘোষণা করে কত সালে?", options: ["১৭৭৬", "১৭৮৩", "১৭৭৭", "১৭৮৬"], correct: 0},
+{question: "১৪ দফা ঘোষণা করেন কোন মার্কিন প্রেসিডেন্ট?", options: ["আব্রাহাম লিংকন", "থমাস জেফারসন", "উড্রো উইলসন", "ফ্রাঙ্কলিন ডি রুজভেল্ট"], correct: 2},
+{question: "সোভিয়েত রাশিয়া USSR নামটি গ্রহণ করে কত সালে?", options: ["১৯১৭", "১৯১৯", "১৯২২", "১৯২৪"], correct: 2},
+{question: "ইবনে বতুতা কোন দেশের নাগরিক?", options: ["সিরিয়া", "মরক্কো", "ব্যাবিলন", "তিউনিশিয়া"], correct: 1},
+{question: "‘একাডেমিয়া’ প্রতিষ্ঠা করেন কে?", options: ["সক্রেটিস", "প্লেটো", "এরিস্টটল", "আলেক্সান্ডার"], correct: 1},
+{question: "পৃথিবীর বৃহত্তম সংবাদ সংস্থা কোনটি?", options: ["এএফপি", "সিএনএন", "বিবিসি", "রয়টার্স"], correct: 3},
+{question: "ইউক্রেন কোন দেশের অংশ ছিল?", options: ["ইতালি", "যুক্তরাজ্য", "ইউএসএসআর (সোভিয়েত ইউনিয়ন)", "ফ্রান্স"], correct: 2},
+{question: "উইঘুর জাতি কোন ধর্মাবলম্বী?", options: ["ইসলাম", "হিন্দু", "খ্রিস্টান", "বাহাই"], correct: 0},
+{question: "রাজনীতিবিদ হয়েও সাহিত্যে নোবেল পেয়েছেন কে?", options: ["হো চি মিন", "উইনস্টন চার্চিল", "রোনাল্ড রিগ্যান", "অং সাং সু চি"], correct: 1},
+{question: "পাবলো পিকাসো কোন দেশের চিত্রকর?", options: ["স্পেন", "ফ্রান্স", "গ্রিস", "ইতালি"], correct: 0},
+{question: "‘মেইতেই’ জাতিগোষ্ঠী ভারতের কোন রাজ্যে বসবাস করে?", options: ["মণিপুর", "নাগাল্যান্ড", "সিকিম", "মিজোরাম"], correct: 0},
+{question: "‘দ্য স্ট্রাটেজিক ভিক্টোরি’ গ্রন্থটির লেখক কে?", options: ["চে গুয়েভারা", "ফিদেল ক্যাস্ত্রো", "হো চি মিন", "মাও সে তুং"], correct: 1},
+{question: "‘ক্রিটিক অব পিওর রিজন’ গ্রন্থটি কে লিখেছেন?", options: ["নিকোলো ম্যাকিয়াভেলি", "ইমানুয়েল কান্ট", "জন লক", "থমাস হবস"], correct: 1},
+{question: "মিয়ানমারের বর্তমান রাজধানী কোনটি?", options: ["আকিয়াব", "রেঙ্গুন", "নেইপিদো", "মান্দালয়"], correct: 2},
+{question: "কোনটি ভারতের কেন্দ্রশাসিত অঞ্চল?", options: ["ঝাড়খন্ড", "তেলেঙ্গানা", "কেরালা", "লাদাখ"], correct: 3},
+{question: "‘দ্রাবিড়’ জাতি প্রধানত কোন দেশে বাস করে?", options: ["ভারত", "নেপাল", "পাকিস্তান", "মিয়ানমার"], correct: 0},
+{question: "মিয়ানমারের সীমান্তবর্তী দেশ নয় কোনটি?", options: ["লাওস", "থাইল্যান্ড", "চীন", "মালয়েশিয়া"], correct: 3},
+{question: "কোন দেশের তিনটি পৃথক রাজধানী শহর রয়েছে?", options: ["যুক্তরাষ্ট্র", "অস্ট্রেলিয়া", "দক্ষিণ আফ্রিকা", "ব্রাজিল"], correct: 2},
+{question: "কোন দেশের সবচেয়ে বেশি কূটনৈতিক মিশন আছে?", options: ["চীন", "ভারত", "রাশিয়া", "যুক্তরাষ্ট্র"], correct: 0},
+{question: "কমিউনিজম প্রতিরোধে ‘ট্রুম্যান ডকট্রিন’ কত সালে প্রকাশিত হয়?", options: ["১৯৪৫", "১৯৪৭", "১৯৪৯", "১৯৫৫"], correct: 1},
+{question: "পৃথিবীর প্রাচীনতম সংবাদ সংস্থা কোনটি?", options: ["সিএনএন", "রয়টার্স", "বিবিসি", "এএফপি"], correct: 3},
+{question: "জিসিসিভুক্ত কোন দেশের রাজধানীর নাম দেশটির নামের অনুরূপ?", options: ["ওমান", "বাহরাইন", "কাতার", "কুয়েত"], correct: 3},
+{question: "তিউনিশিয়া কোন অঞ্চলে অবস্থিত?", options: ["দক্ষিণ আফ্রিকা", "উত্তর আফ্রিকা", "পশ্চিম ইউরোপ", "পূর্ব আফ্রিকা"], correct: 1},
+{question: "‘পশতু’ কোন দেশের ভাষা?", options: ["নেপাল", "আফগানিস্তান", "মালদ্বীপ", "ইরান"], correct: 1},
+{question: "‘গ্লোবাল টাইমস’ কোন দেশের সংবাদ সংস্থা?", options: ["চীন", "রাশিয়া", "বৃটেন", "নিউজিল্যান্ড"], correct: 0},
+{question: "হামাসের প্রতিষ্ঠাতা কে?", options: ["ইসমাইল হানিয়া", "হাসান নাসরুল্লাহ", "শেখ আহমদ ইয়াসিন", "ইয়াসির আরাফাত"], correct: 2},
+{question: "চতুর্দশ ‘দালাইলামা’র আসল নাম কী?", options: ["তেনজিং শেরপা", "তেনজিং গিয়াতসো", "থুবথেন গিয়াতসু", "দেগ দুন গ্রুব"], correct: 1},
+{question: "‘পেরেস্ত্রাইকা’র প্রবর্তক কে?", options: ["উইনস্টন চার্চিল", "মার্গারেট থ্যাচার", "মিখাইল গর্বাচেভ", "মিখাইল কালিনিন"], correct: 2},
+
+{question: "২০২৬ সালের আগস্টে বাংলাদেশের রাষ্ট্রপতি হিসেবে কে নির্বাচিত হন?", options: ["মো. সাহাবুদ্দিন", "মির্জা ফখরুল ইসলাম আলমগীর", "তারেক রহমান", "খন্দকার মোশাররফ হোসেন"], correct: 1},
+{question: "২০২৬ সালের ১২ ফেব্রুয়ারি অনুষ্ঠিত জাতীয় সংসদ নির্বাচনে বিএনপি সরাসরি কতটি আসন লাভ করে?", options: ["২০০টি", "২০৫টি", "২১০টি", "২২৫টি"], correct: 2},
+{question: "২০২৬ সালের জাতীয় সংসদ নির্বাচনের সঙ্গে কোন বিষয়ে গণভোট অনুষ্ঠিত হয়?", options: ["নির্বাচন কমিশন সংস্কার", "জুলাই জাতীয় সনদ", "স্থানীয় সরকার সংস্কার", "বিচার বিভাগ সংস্কার"], correct: 1},
+{question: "২০২৬ সালের ১২ মার্চ বাংলাদেশের ত্রয়োদশ জাতীয় সংসদের কী অনুষ্ঠিত হয়?", options: ["প্রথম অধিবেশন", "প্রথম বাজেট অধিবেশন", "প্রথম যৌথ অধিবেশন", "বিশেষ অধিবেশন"], correct: 0},
+{question: "২০২৬ সালের মে মাসে বাংলাদেশের জাতীয় সংসদে সংরক্ষিত নারী আসনের সংখ্যা কতটি ছিল?", options: ["৪৫টি", "৫০টি", "৫৫টি", "৬০টি"], correct: 1},
+{question: "২০২৬ সালে বাংলাদেশের প্রধানমন্ত্রী হিসেবে কে দায়িত্ব পালন করছেন?", options: ["ড. মুহাম্মদ ইউনূস", "তারেক রহমান", "মির্জা ফখরুল ইসলাম আলমগীর", "ড. কামাল হোসেন"], correct: 1},
+{question: "২০২৬ সালের নভেম্বরে বাংলাদেশের জাতীয় সংসদের চতুর্থ অধিবেশন কবে শুরু হয়?", options: ["১ নভেম্বর", "৫ নভেম্বর", "৯ নভেম্বর", "১২ নভেম্বর"], correct: 2},
+{question: "২০২৬ সালের ফেব্রুয়ারির নির্বাচনে বাংলাদেশের প্রধান বিরোধী শক্তি হিসেবে কোন দল আবির্ভূত হয়?", options: ["জাতীয় পার্টি", "বাংলাদেশ জামায়াতে ইসলামী", "গণফোরাম", "ইসলামী আন্দোলন বাংলাদেশ"], correct: 1},
+{question: "২০২৬ সালের ১৭ জানুয়ারি কোন আন্তর্জাতিক চুক্তি কার্যকর হয়?", options: ["Kyoto Protocol", "BBNJ Agreement", "Paris Agreement", "Montreal Protocol"], correct: 1},
+{question: "BBNJ Agreement মূলত কোন বিষয় নিয়ে কাজ করে?", options: ["মহাকাশের নিরাপত্তা", "আন্তর্জাতিক সমুদ্রসীমার বাইরের সামুদ্রিক জীববৈচিত্র্য সংরক্ষণ", "পারমাণবিক অস্ত্র নিয়ন্ত্রণ", "আন্তর্জাতিক বাণিজ্য"], correct: 1},
+{question: "২০২৬ সালের ১৪তম WTO Ministerial Conference কোথায় অনুষ্ঠিত হয়?", options: ["জেনেভা, সুইজারল্যান্ড", "নাইরোবি, কেনিয়া", "ইয়াউন্ডে, ক্যামেরুন", "ব্যাংকক, থাইল্যান্ড"], correct: 2},
+{question: "২০২৬ সালের India AI Impact Summit কোথায় অনুষ্ঠিত হয়?", options: ["মুম্বাই", "নয়াদিল্লি", "বেঙ্গালুরু", "হায়দরাবাদ"], correct: 1},
+{question: "২০২৬ সালের India AI Impact Summit-এর ঘোষণায় কয়টি মূল স্তম্ভ বা Chakra উল্লেখ করা হয়?", options: ["৫টি", "৬টি", "৭টি", "৮টি"], correct: 2},
+{question: "২০২৬ সালের NATO Summit কোথায় অনুষ্ঠিত হয়?", options: ["ব্রাসেলস, বেলজিয়াম", "আঙ্কারা, তুরস্ক", "প্যারিস, ফ্রান্স", "বার্লিন, জার্মানি"], correct: 1},
+{question: "২০২৬ সালের ১৮তম BRICS Summit কোন দেশে অনুষ্ঠিত হয়?", options: ["চীন", "ভারত", "ব্রাজিল", "রাশিয়া"], correct: 1},
+{question: "২০২৬ সালের ৪৮তম ASEAN Summit কোথায় অনুষ্ঠিত হয়?", options: ["জাকার্তা, ইন্দোনেশিয়া", "ব্যাংকক, থাইল্যান্ড", "সেবু, ফিলিপাইন", "হ্যানয়, ভিয়েতনাম"], correct: 2},
+{question: "২০২৬ সালের FIFA বিশ্বকাপের ফাইনাল কোথায় অনুষ্ঠিত হয়?", options: ["মেক্সিকো সিটি", "টরন্টো", "নিউইয়র্ক–নিউ জার্সি", "লস অ্যাঞ্জেলেস"], correct: 2},
+{question: "২০২৬ সালের FIFA বিশ্বকাপের উদ্বোধনী ম্যাচ কোন শহরে অনুষ্ঠিত হয়?", options: ["টরন্টো", "মেক্সিকো সিটি", "নিউইয়র্ক", "ভ্যাঙ্কুভার"], correct: 1},
+{question: "২০২৬ সালের COP31 জলবায়ু সম্মেলন কোন দেশে অনুষ্ঠিত হচ্ছে?", options: ["ব্রাজিল", "তুরস্ক", "অস্ট্রেলিয়া", "আজারবাইজান"], correct: 1},
+{question: "২০২৬ সালে ইউরোপীয় ইউনিয়নের Carbon Border Adjustment Mechanism (CBAM) কোন পর্যায়ে প্রবেশ করে?", options: ["পরীক্ষামূলক পর্যায়", "Definitive phase", "স্থগিত পর্যায়", "সম্পূর্ণ বাতিল পর্যায়"], correct: 1},
+
+];
+
+    let userName = "";
+    let currentIndex = 0;
+    
+    let questionStates = new Array(questionsDatabase.length).fill(null);
+    let userSelections = new Array(questionsDatabase.length).fill(null);
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const nameInput = document.getElementById('user-name');
+      if (nameInput) {
+        nameInput.addEventListener('keydown', function(event) {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            startQuiz();
+          }
+        });
+      }
+    });
+
+    function startQuiz() {
+      const nameInput = document.getElementById('user-name');
+      const inputVal = nameInput ? nameInput.value.trim() : "";
+      
+      if (!inputVal) {
+        alert("অনুগ্রহ করে আপনার নাম প্রদান করুন!");
+        return;
+      }
+      userName = inputVal;
+      
+      const displayNameEl = document.getElementById('display-name');
+      if (displayNameEl) displayNameEl.innerText = userName;
+
+      const userInfoView = document.getElementById('user-info-view');
+      const quizView = document.getElementById('quiz-view');
+
+      if (userInfoView) userInfoView.style.display = 'none';
+      if (quizView) quizView.style.display = 'block';
+
+      loadQuestion(0);
+    }
+
+    function loadQuestion(index) {
+      currentIndex = index;
+      const qData = questionsDatabase[currentIndex];
+
+      document.getElementById('progress-text').innerText = `Question ${currentIndex + 1}/${questionsDatabase.length}`;
+      document.getElementById('progress-bar').style.width = `${((currentIndex + 1) / questionsDatabase.length) * 100}%`;
+      document.getElementById('question-title').innerText = qData.question;
+
+      document.getElementById('prev-btn').disabled = (currentIndex === 0);
+      document.getElementById('next-btn').disabled = (currentIndex === questionsDatabase.length - 1);
+
+      const submitBtn = document.getElementById('submit-btn');
+      if (currentIndex === questionsDatabase.length - 1) {
+        submitBtn.style.display = 'inline-block';
+      } else {
+        submitBtn.style.display = 'none';
+      }
+
+      const optionsGrid = document.getElementById('options-grid');
+      optionsGrid.innerHTML = '';
+
+      const isAnswered = (userSelections[currentIndex] !== null);
+      const userSelectedOpt = userSelections[currentIndex];
+
+      qData.options.forEach((opt, optIdx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        
+        let iconHtml = '<i class="fa-regular fa-circle"></i>';
+
+        if (isAnswered) {
+          btn.disabled = true;
+          btn.classList.add('disabled-opt');
+
+          if (optIdx === qData.correct) {
+            btn.classList.add('correct-opt');
+            iconHtml = '<i class="fa-solid fa-circle-check"></i>';
+          } else if (optIdx === userSelectedOpt) {
+            btn.classList.add('wrong-opt');
+            iconHtml = '<i class="fa-solid fa-circle-xmark"></i>';
+          }
+        }
+
+        btn.innerHTML = `<span>${opt}</span> ${iconHtml}`;
+        btn.onclick = () => selectOption(optIdx);
+        optionsGrid.appendChild(btn);
+      });
+    }
+
+    function selectOption(optionIdx) {
+      if (userSelections[currentIndex] !== null) return;
+
+      userSelections[currentIndex] = optionIdx;
+      questionStates[currentIndex] = 'answered';
+
+      loadQuestion(currentIndex);
+    }
+
+    function skipCurrentQuestion() {
+      if (userSelections[currentIndex] === null) {
+        questionStates[currentIndex] = 'skipped';
+      }
+      if (currentIndex < questionsDatabase.length - 1) {
+        loadQuestion(currentIndex + 1);
+      }
+    }
+
+    function navigateQuestion(direction) {
+      const newIndex = currentIndex + direction;
+      if (newIndex >= 0 && newIndex < questionsDatabase.length) {
+        loadQuestion(newIndex);
+      }
+    }
+
+    function openSubmitModal() {
+      let answeredCount = questionStates.filter(s => s === 'answered').length;
+      let skippedCount = questionStates.filter(s => s === 'skipped').length;
+      let unvisitedCount = questionsDatabase.length - (answeredCount + skippedCount);
+
+      document.getElementById('modal-summary-text').innerText = 
+        `Given answer: ${answeredCount}টি | Skip: ${skippedCount}টি | Remaining: ${unvisitedCount}টি`;
+
+      document.getElementById('submit-modal').classList.add('active');
+    }
+
+    function closeSubmitModal() {
+      document.getElementById('submit-modal').classList.remove('active');
+    }
+
+    function finalizeExam() {
+      closeSubmitModal();
+      document.getElementById('quiz-view').style.display = 'none';
+      document.getElementById('result-view').style.display = 'block';
+
+      let correct = 0;
+      let wrong = 0;
+      let skipped = 0;
+      let wrongQuestionsList = [];
+
+      const reviewList = document.getElementById('review-list');
+      reviewList.innerHTML = '';
+
+      questionsDatabase.forEach((q, idx) => {
+        const selected = userSelections[idx];
+        const isAnswered = selected !== null;
+        const isCorrect = isAnswered && selected === q.correct;
+        const isWrong = isAnswered && selected !== q.correct;
+
+        if (isCorrect) {
+          correct++;
+        } else if (isWrong) {
+          wrong++;
+          wrongQuestionsList.push({
+            questionNo: idx + 1,
+            questionText: q.question,
+            givenAnswer: q.options[selected],
+            correctAnswer: q.options[q.correct]
+          });
+        } else {
+          skipped++;
+        }
+
+        const item = document.createElement('div');
+        let statusClass = isCorrect ? 'is-correct' : (isWrong ? 'is-wrong' : 'is-skipped');
+        item.className = `review-item ${statusClass}`;
+
+        let selectedText = isAnswered ? q.options[selected] : 'উত্তর দেওয়া হয়নি (স্কিপড)';
+        let correctText = q.options[q.correct];
+
+        item.innerHTML = `
+          <div class="review-q">${q.question}</div>
+          <div class="review-ans">
+            <span>Your answer: <strong style="color: ${isCorrect ? 'var(--correct-text)' : (isWrong ? 'var(--wrong-text)' : 'var(--skipped-text)')}">${selectedText}</strong></span>
+            ${!isCorrect ? `<span>Right answer: <strong style="color: var(--correct-text)">${correctText}</strong></span>` : ''}
+          </div>
+        `;
+        reviewList.appendChild(item);
+      });
+
+      let totalScore = (correct * 1.0) - (wrong * 0.25);
+      if (totalScore < 0) totalScore = 0;
+
+      let answeredTotal = correct + wrong;
+      let accuracy = answeredTotal > 0 ? ((correct / answeredTotal) * 100).toFixed(1) : 0;
+
+      document.getElementById('final-score').innerText = totalScore.toFixed(2);
+      document.getElementById('correct-count').innerText = correct;
+      document.getElementById('wrong-count').innerText = wrong;
+      document.getElementById('skipped-count').innerText = skipped;
+      document.getElementById('accuracy-rate').innerText = `${accuracy}%`;
+
+      const perfBadge = document.getElementById('performance-badge');
+      if (totalScore >= 60) {
+        perfBadge.innerHTML = `<i class="fa-solid fa-trophy"></i> চমৎকার প্রস্তুতি! (Outstanding)`;
+      } else if (totalScore >= 40) {
+        perfBadge.innerHTML = `<i class="fa-solid fa-medal"></i> ভালো ফলাফল (Good Job)`;
+      } else {
+        perfBadge.innerHTML = `<i class="fa-solid fa-book-open"></i> আরও অনুশীলন প্রয়োজন`;
+      }
+
+      db.collection("quiz_results 33").add({
+        studentName: userName,
+        totalScore: totalScore.toFixed(2),
+        correctAnswers: correct,
+        wrongAnswers: wrong,
+        skippedQuestions: skipped,
+        accuracyPercentage: accuracy,
+        wrongQuestionsBreakdown: wrongQuestionsList,
+        submittedAt: new Date().toISOString()
+      })
+      .then(() => console.log("Result saved to Firestore successfully!"))
+      .catch((err) => console.error("Firestore Save Error: ", err));
+    }
+  </script>
+</body>
+</html>
